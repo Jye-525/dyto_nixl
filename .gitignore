@@ -21,3 +21,7 @@ cufile.log
 
 # Asio
 subprojects/asio-*
+
+# Build and install directory
+build/
+install/

@@ -117,10 +117,13 @@ apt install etcd-server
 Example:
 ```bash
 # On host 1
-./nixlbench --runtime_type=ETCD --etcd-endpoints http://etcd-server:2379 --backend UCX --seg_type VRAM
+./nixlbench --runtime_type=ETCD --etcd-endpoints http://etcd-server:2379 --backend UCX --initiator_seg_type VRAM
 
 # On host 2
-./nixlbench --runtime_type=ETCD --etcd-endpoints http://etcd-server:2379 --backend UCX --seg_type VRAM
+./nixlbench --runtime_type=ETCD --etcd-endpoints http://etcd-server:2379 --backend UCX --target_seg_type VRAM
 ```
 
 The workers automatically coordinate ranks through ETCD as they connect.
+
+
+./nixlbench --runtime_type=ETCD --etcd-endpoints http://localhost:2379 --backend UCX --target_seg_type VRAM

@@ -332,15 +332,24 @@ nixlAgent::registerMem(const nixl_reg_dlist_t &descs,
                           new nixlRemoteSection(data->name);
 
                 ret = data->remoteSections[data->name]->loadLocalData(
-                                                        sec_descs, backend);
+                                                        sec_descs, backend);                                      
                 if (ret == NIXL_SUCCESS)
                     count++;
-                else
+                else {
+                    NIXL_ERROR << "Failed to load local data for backend "
+                               << backend->getType() << ": "
+                               << nixlEnumStrings::statusStr(ret);
                     data->memorySection->remDescList(descs, backend);
+                }
+                    
             } else {
                 count++;
             }
         } // a bad_ret can be saved in an else
+        else {
+            NIXL_ERROR << "Failed to register memory descriptors with backend "
+                       << backend->getType() << ": " << nixlEnumStrings::statusStr(ret);
+        }
     }
 
     if (extra_params && extra_params->backends.size() > 0)

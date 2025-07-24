@@ -37,6 +37,9 @@ nixl_path = get_option('nixl_path')
 # NVSHMEM
 nvshmem_inc_path = get_option('nvshmem_inc_path')
 nvshmem_lib_path = get_option('nvshmem_lib_path')
+# UCX
+ucx_path = get_option('ucx_path')
+
 
 # Find required libraries
 # NIXL
@@ -84,7 +87,20 @@ endif
 
 
 # UCX
-ucx_dep = dependency('ucx')
+if ucx_path != ''
+    ucx_dep = dependency('ucx', required: false)
+    if not ucx_dep.found()
+        ucx_lib = cpp.find_library('ucp', dirs: [ucx_path + '/lib'])
+        if ucx_lib.found()
+            ucx_dep = declare_dependency(
+                include_directories: include_directories(ucx_path + '/include'),
+                dependencies: ucx_lib,
+            )
+        endif
+    endif
+else
+    ucx_dep = dependency('ucx')
+endif
 
 # GFlags
 gflags_dep = dependency('gflags', required: true)
@@ -94,6 +110,18 @@ openmp_dep = dependency('openmp', required: true)
 
 # Check for etcd-cpp-api - use multiple methods for discovery
 etcd_dep = dependency('etcd-cpp-api', required : false)
+if not etcd_dep.found() and etcd_lib_path != ''
+    etcd_lib = cpp.find_library('etcd-cpp-api', dirs : etcd_lib_path)
+    if etcd_lib.found()
+        if cpp.has_header('etcd/Client.hpp', args : '-I' + etcd_inc_path)
+            etcd_inc = include_directories(etcd_inc_path, is_system: true)
+            etcd_dep = declare_dependency(
+                        include_directories : etcd_inc,
+                        dependencies : etcd_lib,
+                        link_args : ['-lcpprest'])
+        endif
+    endif
+endif
 
 # Ensure etcd is available
 etcd_available = etcd_dep.found()

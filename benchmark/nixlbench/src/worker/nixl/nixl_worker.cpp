@@ -33,6 +33,7 @@
 #include <sys/time.h>
 #include <utils/serdes/serdes.h>
 #include <omp.h>
+#include <iostream>
 
 
 #define ROUND_UP(value, granularity) \
@@ -493,6 +494,12 @@ xferBenchNixlWorker::deallocateMemory(std::vector<std::vector<xferBenchIOV>> &io
 
     opt_args.backends.push_back(backend_engine);
     for (auto &iov_list : iov_lists) {
+        // for gds, Deregistration (CRITICAL - must be done before freeing)
+        // so we move deregisterMem before cleanup 
+        nixl_reg_dlist_t desc_list(seg_type);
+        iovListToNixlRegDlist(iov_list, desc_list);
+        CHECK_NIXL_ERROR(agent->deregisterMem(desc_list, &opt_args), "deregisterMem failed");
+
         for (auto &iov : iov_list) {
             switch (seg_type) {
             case DRAM_SEG:
@@ -508,20 +515,26 @@ xferBenchNixlWorker::deallocateMemory(std::vector<std::vector<xferBenchIOV>> &io
                 exit(EXIT_FAILURE);
             }
         }
-
-        nixl_reg_dlist_t desc_list(seg_type);
-        iovListToNixlRegDlist(iov_list, desc_list);
-        CHECK_NIXL_ERROR(agent->deregisterMem(desc_list, &opt_args), "deregisterMem failed");
+        
+        // nixl_reg_dlist_t desc_list(seg_type);
+        // iovListToNixlRegDlist(iov_list, desc_list);
+        // CHECK_NIXL_ERROR(agent->deregisterMem(desc_list, &opt_args), "deregisterMem failed");
     }
 
     if (xferBenchConfig::isStorageBackend()) {
         for (auto &iov_list : remote_iovs) {
-            for (auto &iov : iov_list) {
-                cleanupBasicDescFile(iov);
-            }
+            // for gds, Deregistration (CRITICAL - must be done before freeing)
+            // so we move deregisterMem before cleanup 
             nixl_reg_dlist_t desc_list(FILE_SEG);
             iovListToNixlRegDlist(iov_list, desc_list);
             CHECK_NIXL_ERROR(agent->deregisterMem(desc_list, &opt_args), "deregisterMem failed");
+            
+            for (auto &iov : iov_list) {
+                cleanupBasicDescFile(iov);
+            }
+            // nixl_reg_dlist_t desc_list(FILE_SEG);
+            // iovListToNixlRegDlist(iov_list, desc_list);
+            // CHECK_NIXL_ERROR(agent->deregisterMem(desc_list, &opt_args), "deregisterMem failed");
         }
     }
 }

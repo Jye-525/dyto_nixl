@@ -74,6 +74,11 @@ nixlGdsEngine::nixlGdsEngine(const nixlBackendInitParams* init_params)
         }
     }
 
+    NIXL_INFO << "Initializing GDS backend with parameters:";
+    NIXL_INFO << "  Batch Pool Size: " << batch_pool_size;
+    NIXL_INFO << "  Batch Limit: " << batch_limit;
+    NIXL_INFO << "  Max Request Size: " << max_request_size;
+
     this->initErr = false;
     if (gds_utils->openGdsDriver() == NIXL_ERR_BACKEND) {
         this->initErr = true;
@@ -159,7 +164,7 @@ nixl_status_t nixlGdsEngine::deregisterMem (nixlBackendMD* meta)
     nixlGdsMetadata *md = (nixlGdsMetadata *)meta;
     if (md->type == FILE_SEG) {
         gds_utils->deregisterFileHandle(md->handle);
-	gds_file_map.erase(md->handle.fd);
+	    gds_file_map.erase(md->handle.fd);
     } else {
         gds_utils->deregisterBufHandle(md->buf.base);
     }
@@ -243,6 +248,11 @@ nixl_status_t nixlGdsEngine::prepXfer (const nixl_xfer_op_t &operation,
         // Split large transfers into multiple requests
         size_t remaining_size = total_size;
         size_t current_offset = 0;
+
+        NIXL_DEBUG << "Preparing transfer for "
+                  << (is_local_file ? "file to memory" : "memory to file")
+                  << " with size: " << total_size
+                  << ", max_request_size: " << max_request_size;
 
         while (remaining_size > 0) {
             size_t request_size = std::min(remaining_size,

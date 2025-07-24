@@ -16,6 +16,7 @@
  */
 #include "gds_utils.h"
 #include "common/nixl_log.h"
+#include <iostream>
 
 nixl_status_t gdsUtil::registerFileHandle(int fd,
                                           size_t size,
