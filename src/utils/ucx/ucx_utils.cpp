@@ -30,6 +30,7 @@
 #include "config.h"
 #include "serdes/serdes.h"
 #include "rkey.h"
+#include <iostream>
 
 using namespace std;
 
@@ -356,6 +357,10 @@ bool nixlUcxMtLevelIsSupported(const nixl_ucx_mt_t mt_type) noexcept
     attr.field_mask = UCP_LIB_ATTR_FIELD_MAX_THREAD_LEVEL;
     ucp_lib_query(&attr);
 
+    std::cout << "In nixlUcxMtLevelIsSupported: mt_type=" << enumToInteger(mt_type)
+        << " ucp_lib_attr.max_thread_level=" << attr.max_thread_level
+        << " UCS_THREAD_MODE_MULTI = " << UCS_THREAD_MODE_MULTI << std::endl;
+
     switch(mt_type) {
     case nixl_ucx_mt_t::SINGLE:
         return attr.max_thread_level >= UCS_THREAD_MODE_SERIALIZED;
@@ -470,6 +475,7 @@ namespace
        {
            field_mask = UCP_WORKER_PARAM_FIELD_THREAD_MODE;
            thread_mode = toUcsThreadModeChecked(t);
+           std::cout << "In nixlUcpWorkerParams thread_mode=" << thread_mode << std::endl;
        }
    };
 

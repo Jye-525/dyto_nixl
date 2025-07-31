@@ -13,7 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-mooncake_backend_dep = declare_dependency(link_with: mooncake_backend_lib, include_directories: [nixl_inc_dirs, '../../../../src/plugins/mooncake'])
+# mooncake_inc_dirs = include_directories('/home/cc/shared_cc/deps/Mooncake/install/include/')
+mooncake_backend_dep = declare_dependency(link_with: mooncake_backend_lib, include_directories: [nixl_inc_dirs, '../../../../src/plugins/mooncake', mooncake_inc_dirs])
 
 if cuda_dep.found()
     cuda_dependencies = [cuda_dep]

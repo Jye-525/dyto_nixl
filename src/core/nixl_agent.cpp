@@ -685,35 +685,55 @@ nixlAgent::createXferReq(const nixl_xfer_op_t &operation,
     NIXL_SHARED_LOCK_GUARD(data->lock);
     if (data->remoteSections.count(remote_agent) == 0)
     {
+        // std::cout << "Error: Remote agent not found: " << remote_agent << std::endl;
         delete backend_set;
         return NIXL_ERR_NOT_FOUND;
     }
 
     // Check the correspondence between descriptor lists
     if (local_descs.descCount() != remote_descs.descCount())
+    {
+        // std::cout << "Error: Descriptor list count mismatch" << std::endl;
         return NIXL_ERR_INVALID_PARAM;
+    }
     for (int i=0; i<local_descs.descCount(); ++i)
+    {
         if (local_descs[i].len != remote_descs[i].len)
+        {
+            // std::cout << "Error: Descriptor length mismatch at index " << i
+            //           << ": local=" << local_descs[i].len
+            //           << ", remote=" << remote_descs[i].len << std::endl;
             return NIXL_ERR_INVALID_PARAM;
+        }
+    }
+
 
     if (!extra_params || extra_params->backends.size() == 0) {
         // Finding backends that support the corresponding memories
         // locally and remotely, and find the common ones.
+        // std::cout << "Finding common backends for memory type: "
+        //           << "local " << local_descs.getType() << " and remote " << remote_descs.getType() << std::endl;
         backend_set_t* local_set =
             data->memorySection->queryBackends(local_descs.getType());
         backend_set_t* remote_set =
             data->remoteSections[remote_agent]->queryBackends(
                                                 remote_descs.getType());
         if (!local_set || !remote_set) {
+            // std::cout << "Error: No backends found for the given memory type"
+            //           << std::endl;
             delete backend_set;
             return NIXL_ERR_NOT_FOUND;
         }
 
-        for (auto & elm : *local_set)
+        for (auto & elm : *local_set) {
+            // std::cout << "Local backend: " << elm->getType() << ", count=" << (remote_set->count(elm)) << std::endl;
             if (remote_set->count(elm) != 0)
                 backend_set->insert(elm);
+        }
 
         if (backend_set->empty()) {
+            // std::cout << "Error: No common backends found for the given memory type ----2"
+            //           << std::endl;
             delete backend_set;
             return NIXL_ERR_NOT_FOUND;
         }
@@ -754,6 +774,8 @@ nixlAgent::createXferReq(const nixl_xfer_op_t &operation,
     delete backend_set;
 
     if (!handle->engine) {
+        // std::cout << "Error: No common backends found for the given memory type --- 3"
+        //           << std::endl;
         delete handle;
         return NIXL_ERR_NOT_FOUND;
     }
@@ -769,6 +791,7 @@ nixlAgent::createXferReq(const nixl_xfer_op_t &operation,
     }
 
     if (opt_args.hasNotif && (!handle->engine->supportsNotif())) {
+        // std::cout << "Error: Backend does not support notifications" << std::endl;
         delete handle;
         return NIXL_ERR_BACKEND;
     }
@@ -786,6 +809,8 @@ nixlAgent::createXferReq(const nixl_xfer_op_t &operation,
                                      handle->backendHandle,
                                      &opt_args);
     if (ret1 != NIXL_SUCCESS) {
+        // std::cout << "Error: Failed to prepare transfer: "
+        //           << ret1 << " " << nixlEnumStrings::statusStr(ret1) << std::endl;
         delete handle;
         return ret1;
     }

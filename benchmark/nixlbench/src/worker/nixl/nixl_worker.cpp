@@ -681,6 +681,8 @@ execTransfer(nixlAgent *agent,
         nixl_xfer_dlist_t local_desc(GET_SEG_TYPE(true));
         nixl_xfer_dlist_t remote_desc(GET_SEG_TYPE(false));
 
+        // std::cout << "Thread " << tid << " ....... GET_SEG_TYPE(false) = " << GET_SEG_TYPE(false) << std::endl;
+
         if (xferBenchConfig::isStorageBackend()) {
             remote_desc = nixl_xfer_dlist_t(FILE_SEG);
         }
@@ -706,6 +708,9 @@ execTransfer(nixlAgent *agent,
             target = "target";
         }
 
+        // std::cout << "Creating transfer request for thread " << tid
+        //           << ", op: " << (op == NIXL_READ ? "READ" : "WRITE") 
+        //           << ", local mem type: " << local_desc.getType() << ", remote mem type: " << remote_desc.getType() << std::endl;
         CHECK_NIXL_ERROR(agent->createXferReq(op, local_desc, remote_desc, target, req, &params),
                          "createTransferReq failed");
 

@@ -33,9 +33,20 @@ if taskflow_proj.found()
 endif
 
 cc = meson.get_compiler('cpp')
-libtransfer_engine = cc.find_library('transfer_engine', required: false)
+mooncake_path = get_option('mooncake_path')
+if mooncake_path == ''
+    mooncake_lib_path = '/usr/lib/'
+else
+    mooncake_lib_path = mooncake_path + '/lib/'
+endif
+libtransfer_engine = cc.find_library('transfer_engine', dirs: [mooncake_lib_path], required: false)
 disable_mooncake_backend = get_option('disable_mooncake_backend')
 if libtransfer_engine.found() and not disable_mooncake_backend
+    if mooncake_path == ''
+        mooncake_inc_dirs = include_directories('/usr/include/mooncake/')
+    else
+        mooncake_inc_dirs = include_directories(mooncake_path + '/include/')
+    endif
     subdir('mooncake')
 endif
 
