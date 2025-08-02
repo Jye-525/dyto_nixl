@@ -1,0 +1,19 @@
+DEPS_ROOT=/home/cc/shared_cc/deps
+NIXL_PATH=/home/cc/shared_cc/dyto_nixl/install
+
+## used for building nixlbench
+#export PKG_CONFIG_PATH=$DEPS_ROOT/ucx-1.18.0/install/lib/pkgconfig:$PKG_CONFIG_PATH
+
+export LD_LIBRARY_PATH=$DEPS_ROOT/etcd-cpp-apiv3/install/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$DEPS_ROOT/gdrcopy/install/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$DEPS_ROOT/ucx-1.18.0/install/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$NIXL_PATH/lib/x86_64-linux-gnu/:$NIXL_PATH/lib/x86_64-linux-gnu/plugins:$LD_LIBRARY_PATH
+
+# activate the virtual environment
+source /home/cc/shared_cc/.venv/bin/activate
+
+### export environment variables used for nixlbench
+export NIXL_PLUGIN_DIR=$NIXL_PATH/lib/x86_64-linux-gnu/plugins
+
+### export the path of the cufile.json
+export CUFILE_ENV_PATH_JSON=/home/cc/shared_cc/nixlbench/bin/cufile.json

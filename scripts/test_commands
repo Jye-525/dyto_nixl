@@ -1,0 +1,37 @@
+##### Test-Case 1: Using the POSIX backend
+./nixlbench --worker_type nixl --runtime_type=ETCD --etcd-endpoints http://localhost:2379 --backend POSIX --device_list all --filepath /mnt/nvme/jye/  --initiator_seg_type DRAM --op_type WRITE --max_batch_size 1 --start_batch_size 1 --num_threads 1 --storage_enable_direct=0
+
+##### Test-Case 2: Using the GDS backend
+
+./nixlbench --worker_type nixl --runtime_type=ETCD --etcd-endpoints http://localhost:2379 --backend GDS --device_list all --filepath /mnt/nvme/jye/  --initiator_seg_type VRAM --op_type WRITE --max_batch_size 16 --start_batch_size 16 --num_threads 1 --total_buffer_size 25769803776
+
+./nixlbench --worker_type nixl --runtime_type=ETCD --etcd-endpoints http://10.52.3.209:2379 --backend GDS --device_list all --filepath /mnt/nvme/jye/  --initiator_seg_type VRAM --op_type WRITE --max_batch_size 1 --start_batch_size 1 --num_threads 1 --total_buffer_size 17179869184 
+
+34359738368
+
+
+##### unsupported GDS_MT now 
+./nixlbench --worker_type nixl --runtime_type=ETCD --etcd-endpoints http://localhost:2379 --backend GDS_MT --device_list all --filepath /mnt/nvme/jye/  --initiator_seg_type VRAM --op_type WRITE --max_batch_size 1 --start_batch_size 1 --num_threads 1
+
+##### test ucx backend (UCX doesn't support initor is VRAM, target is DRAM)
+./nixlbench --worker_type nixl --runtime_type=ETCD --etcd-endpoints http://10.52.3.209:2379 --backend UCX --initiator_seg_type VRAM --target_seg_type VRAM --max_batch_size 1 --start_batch_size 1 --num_threads 1 --total_buffer_size 8589934592
+./nixlbench --worker_type nixl --runtime_type=ETCD --etcd-endpoints http://10.52.3.209:2379 --backend UCX --initiator_seg_type VRAM --target_seg_type VRAM --max_batch_size 1 --start_batch_size 1 --num_threads 1 --total_buffer_size 8589934592
+(crashed when num_threads > 1)
+
+./nixlbench --worker_type nixl --runtime_type=ETCD --etcd-endpoints http://10.52.3.209:2379 --backend UCX --initiator_seg_type DRAM --target_seg_type DRAM --max_batch_size 16 --start_batch_size 16 --num_threads 1 --total_buffer_size 34359738368
+./nixlbench --worker_type nixl --runtime_type=ETCD --etcd-endpoints http://10.52.3.209:2379 --backend UCX --initiator_seg_type DRAM --target_seg_type DRAM --max_batch_size 16 --start_batch_size 16 --num_threads 1 --total_buffer_size 34359738368
+
+./nixlbench --worker_type nixl --runtime_type=ETCD --etcd-endpoints http://10.52.3.209:2379 --backend UCX --initiator_seg_type DRAM --target_seg_type VRAM --max_batch_size 1 --start_batch_size 1 --num_threads 1 --total_buffer_size 8589934592
+./nixlbench --worker_type nixl --runtime_type=ETCD --etcd-endpoints http://10.52.3.209:2379 --backend UCX --initiator_seg_type DRAM --target_seg_type VRAM --max_batch_size 1 --start_batch_size 1 --num_threads 1 --total_buffer_size 8589934592
+
+(VARM -> DRAM on a single node works)
+
+### Test UCX-mo
+./nixlbench --worker_type nixl --runtime_type=ETCD --etcd-endpoints http://10.52.3.209:2379 --backend UCX -enable_pt --initiator_seg_type VRAM --target_seg_type DRAM --max_batch_size 1 --start_batch_size 1 --num_threads 4 --total_buffer_size 8589934592
+./nixlbench --worker_type nixl --runtime_type=ETCD --etcd-endpoints http://10.52.3.209:2379 --backend UCX -enable_pt --initiator_seg_type VRAM --target_seg_type DRAM --max_batch_size 1 --start_batch_size 1 --num_threads 4 --total_buffer_size 8589934592
+
+
+--max_block_size 16777216  --start_block_size 16777216
+
+
+67108864
